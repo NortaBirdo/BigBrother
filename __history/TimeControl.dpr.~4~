@@ -1,0 +1,14 @@
+program TimeControl;
+
+uses
+  Vcl.Forms,
+  MainFormUnit in 'MainFormUnit.pas' {Form1};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TMainForm, MainForm);
+  Application.Run;
+end.

@@ -1,0 +1,15 @@
+program TimeControl;
+
+uses
+  Vcl.Forms,
+  MainForm in 'MainForm.pas' {MainForm};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.Title := 'Big Brother';
+  Application.CreateForm(TMainForm, MainForm1);
+  Application.Run;
+end.

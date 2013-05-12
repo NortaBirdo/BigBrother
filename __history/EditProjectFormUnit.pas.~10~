@@ -1,0 +1,48 @@
+unit EditProjectFormUnit;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls;
+
+type
+  TEditProjectForm = class(TForm)
+    ButtonCancel: TButton;
+    ButtonSave: TButton;
+    LabeledEditNameProject: TLabeledEdit;
+    LabeledEditCost: TLabeledEdit;
+    UpDown1: TUpDown;
+    procedure ButtonCancelClick(Sender: TObject);
+    procedure ButtonSaveClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    ProjectName:string;
+    Cost: real;
+  end;
+
+var
+  EditProjectForm: TEditProjectForm;
+
+implementation
+
+{$R *.dfm}
+
+procedure TEditProjectForm.ButtonCancelClick(Sender: TObject);
+begin
+ EditProjectForm.Close;
+end;
+
+procedure TEditProjectForm.ButtonSaveClick(Sender: TObject);
+begin
+ try
+  Cost := StrToFloat(LabeledEditCost.Text);
+ except
+  ShowMessage('Не верный формат ввода стоимости.');
+  exit;
+ end;
+ EditProjectForm.Close;
+end;
+
+end.

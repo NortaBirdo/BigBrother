@@ -1,0 +1,18 @@
+program TimeControl;
+
+uses
+  Vcl.Forms,
+  MainForm in 'MainForm.pas' {MainForm},
+  DBUnit in 'DBUnit.pas',
+  EditProjectFormUnit in 'EditProjectFormUnit.pas' {EditProjectForm};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.Title := 'Big Brother';
+  Application.CreateForm(TMainForm, MainForm1);
+  Application.CreateForm(TEditProjectForm, EditProjectForm);
+  Application.Run;
+end.
