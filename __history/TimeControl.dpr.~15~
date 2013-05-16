@@ -15,7 +15,7 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.Title := 'Big Brother';
-  Application.CreateForm(TMainForm, MainForm1);
+  Application.CreateForm(TMainForm1, MainForm1);
   Application.CreateForm(TEditProjectForm, EditProjectForm);
   Application.Run;
 end.

@@ -177,7 +177,6 @@ begin
 
  OneSession.IDProjectField := ListProject.arProject[0].IDProject;
  ListSession := TSessionControl.TSessionControl(path, TabName, SessInfo, OneSession);
- LabelCost.Caption := FloatToStrF(ListProject.arProject[0].CostHour, ffFixed, 0,1);
 
  StringGridSessions.RowCount := Length (ListSession.ArSession) + 1;
  for I := 0 to Length (ListSession.ArSession) - 1 do
@@ -218,11 +217,7 @@ begin
  //find project and get session
    for I := 0 to Length(ListProject.arProject) -1  do
     if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
-       begin
        ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
-       LabelCost.Caption := FloatToStrF(ListProject.arProject[i].CostHour, ffFixed, 0, 1);
-       end;
-
 
  ListSession.UpDateSession;
  ListSession.getsession;
@@ -236,7 +231,7 @@ begin
    end;
 
  CalcTime;
-
+ LabelCost.Caption := FloatToStrF(ListProject.arProject[ListSession.ActiveProjectID].CostHour, ffFixed, 0,1);
 end;
 
 //Calculation Time

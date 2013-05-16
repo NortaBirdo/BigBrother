@@ -218,11 +218,7 @@ begin
  //find project and get session
    for I := 0 to Length(ListProject.arProject) -1  do
     if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
-       begin
        ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
-       LabelCost.Caption := FloatToStrF(ListProject.arProject[i].CostHour, ffFixed, 0, 1);
-       end;
-
 
  ListSession.UpDateSession;
  ListSession.getsession;
@@ -236,7 +232,7 @@ begin
    end;
 
  CalcTime;
-
+ LabelCost.Caption := FloatToStrF(ListProject.arProject[ListSession.ActiveProjectID].CostHour, ffFixed, 0,1);
 end;
 
 //Calculation Time

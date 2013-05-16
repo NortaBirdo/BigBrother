@@ -5,7 +5,7 @@ object MainForm: TMainForm
   BorderStyle = bsSingle
   Caption = #1041#1086#1083#1100#1096#1086#1081' '#1073#1088#1072#1090
   ClientHeight = 455
-  ClientWidth = 592
+  ClientWidth = 587
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,9 +21,9 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 592
+    Width = 587
     Height = 455
-    ActivePage = TabSheetProject
+    ActivePage = TabSheetSetting
     Align = alClient
     TabOrder = 0
     ExplicitWidth = 566
@@ -282,7 +282,6 @@ object MainForm: TMainForm
     object TabSheetProject: TTabSheet
       Caption = #1055#1088#1086#1077#1082#1090#1099' '#1080' '#1089#1077#1089#1089#1080#1080
       ImageIndex = 1
-      ExplicitWidth = 579
       ExplicitHeight = 405
       object Label5: TLabel
         Left = 11
@@ -345,7 +344,7 @@ object MainForm: TMainForm
       end
       object Label9: TLabel
         Left = 199
-        Top = 378
+        Top = 353
         Width = 146
         Height = 19
         Caption = #1048#1079' '#1085#1080#1093' '#1086#1087#1083#1072#1095#1077#1085#1086':'
@@ -359,7 +358,7 @@ object MainForm: TMainForm
       end
       object Label10: TLabel
         Left = 199
-        Top = 404
+        Top = 379
         Width = 134
         Height = 19
         Caption = #1050' '#1086#1087#1083#1072#1090#1077' '#1095#1072#1089#1086#1074':'
@@ -386,7 +385,7 @@ object MainForm: TMainForm
       end
       object LabelPayedHours: TLabel
         Left = 416
-        Top = 378
+        Top = 353
         Width = 10
         Height = 19
         Caption = '0'
@@ -400,7 +399,7 @@ object MainForm: TMainForm
       end
       object LabelChekHours: TLabel
         Left = 416
-        Top = 403
+        Top = 378
         Width = 10
         Height = 19
         Caption = '0'
@@ -414,7 +413,7 @@ object MainForm: TMainForm
       end
       object Label17: TLabel
         Left = 199
-        Top = 353
+        Top = 404
         Width = 147
         Height = 19
         Caption = #1057#1090#1086#1080#1084#1086#1089#1090#1100' ($/'#1095'): '
@@ -424,10 +423,11 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+        Visible = False
       end
       object LabelCost: TLabel
         Left = 416
-        Top = 352
+        Top = 403
         Width = 10
         Height = 19
         Caption = '0'
@@ -437,6 +437,7 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+        Visible = False
       end
       object ButtonEditProject: TBitBtn
         Left = 66

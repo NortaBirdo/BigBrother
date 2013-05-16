@@ -1,6 +1,6 @@
 {Unit DBUnit;
-Version: 1.2;
-Date of last editing: 16/05/13 19:46
+Version: 1.1;
+Date of last editing: 12/05/13 14:06
 Bond: SQLiteWraper, SQLite3, Vcl.Dialogs, System.SysUtils
 
 developer: Sokolovskiy Nikolay
@@ -47,12 +47,6 @@ type
     ClearWorkTimeField: string;       //Cost Hour one filed
   end;
 
-  //Information about name of fileds DB
-  TPayInfo = record        // One project
-    IDProjectField: string;
-    SumField: string;   //Project's name
-  end;
-
  //Object control sessions
  TSessionControl = class (TObject)
   private
@@ -86,19 +80,6 @@ type
    procedure GetArrayProject(ProjectInfo :TProjectInfo);
    end;
 
-  //object control payment
- TPaymentControl = class (TObject)
-  private
-   SQLTab: TSQLiteTable;
-   DB: TSQLiteDatabase;
-   TableName: string;
-   FieldPayTab: TPayInfo;
-  public
-   ActiveProjectID: integer;
-   constructor TPaymentControl (path, TabName: string; ID: integer; FieldPay: TPayInfo); //inicializtion of array
-   function GetPayment: integer;           //Add new project in DB
-   procedure SetPayment (pay: integer);          //Delete old Project with session
-  end;
 
 implementation
 
@@ -257,38 +238,6 @@ begin
   ' WHERE ' + FieldSessionTab.IDProjectFieldField + ' = ' + IntToStr(ActiveProjectID);
 
  DB.ExecSQL(Query);
-end;
-
-
-{ TPaymentControl }
-
-constructor TPaymentControl.TPaymentControl(path, TabName: string; ID: integer;
-  FieldPay: TPayInfo);
-begin
-try
- DB := TSQLiteDatabase.Create(path);
- TableName := TabName;
- ActiveProjectID := ID;
- FieldPayTab := FieldPay;
-
-except
- ShowMessage('Не удается подключится к базе данных.');
-end;
-end;
-
-function TPaymentControl.GetPayment: integer;
-var
- Query : string;
-begin
- Query := 'SELECT SUM(' + FieldPayTab.SumField + ') AS SUMMA FROM ' + TableName +
-          ' WHERE ' + FieldPayTab.IDProjectField + '=' + IntToStr(ActiveProjectID);
- SQLTab := TSQLiteTable.Create(DB, query);
- result := SQLTab.FieldAsInteger(SQLTab.FieldIndex['SUMMA']);
-end;
-
-procedure TPaymentControl.SetPayment(pay: integer);
-begin
-  //
 end;
 
 
