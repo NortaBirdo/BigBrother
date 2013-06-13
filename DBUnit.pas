@@ -14,6 +14,8 @@ interface
 uses SQLite3, SQLiteWrap, Vcl.Dialogs, System.SysUtils;
 
 type
+
+  //=============================================
   // One project
   TProject = record        // One project
     NameProject: string;   //Project's name
@@ -31,6 +33,7 @@ type
     CostHourField: string;       //Cost Hour one filed
   end;
 
+  //=============================================
   //One Session
   TSession = record
     IDProjectField: integer;
@@ -47,11 +50,25 @@ type
     ClearWorkTimeField: string;       //Cost Hour one filed
   end;
 
-  //Information about name of fileds DB
-  TPayInfo = record        // One project
-    IDProjectField: string;
-    SumField: string;   //Project's name
+  //===============================================
+  // One payment
+  TPayment = record
+    IDProject: integer;
+    Sum: real;
+    Paydate: TDate;
   end;
+
+  //Information about name of fileds DB payment_tab
+  TPaymentInfo = record        // One payment
+    IDProjectField: string;
+    SumField: string;
+    LinkProjectField: string;
+    PaymentDateField: string;
+  end;
+
+ //================================================
+ //OBJECTS
+ //================================================
 
  //Object control sessions
  TSessionControl = class (TObject)
@@ -86,18 +103,18 @@ type
    procedure GetArrayProject(ProjectInfo :TProjectInfo);
    end;
 
-  //object control payment
+  //object control payments
  TPaymentControl = class (TObject)
   private
    SQLTab: TSQLiteTable;
    DB: TSQLiteDatabase;
    TableName: string;
-   FieldPayTab: TPayInfo;
+   FieldPayTab: TPaymentInfo;
   public
    ActiveProjectID: integer;
-   constructor TPaymentControl (path, TabName: string; ID: integer; FieldPay: TPayInfo); //inicializtion of array
-   function GetPayment: integer;           //Add new project in DB
-   procedure SetPayment (pay: integer);          //Delete old Project with session
+   constructor TPaymentControl (path, TabName: string; ID: integer; FieldPay: TPaymentInfo); //inicializtion of array
+   function GetPayment: real;                 //Add new project in DB
+   procedure SetPayment (pay: real);          //Delete old Project with session
   end;
 
 implementation
@@ -263,7 +280,7 @@ end;
 { TPaymentControl }
 
 constructor TPaymentControl.TPaymentControl(path, TabName: string; ID: integer;
-  FieldPay: TPayInfo);
+  FieldPay: TPaymentInfo);
 begin
 try
  DB := TSQLiteDatabase.Create(path);
@@ -276,19 +293,28 @@ except
 end;
 end;
 
-function TPaymentControl.GetPayment: integer;
+function TPaymentControl.GetPayment: real;
 var
  Query : string;
 begin
- Query := 'SELECT SUM(' + FieldPayTab.SumField + ') AS SUMMA FROM ' + TableName +
+ Query := 'SELECT SUM(' + FieldPayTab.SumField + ') AS `SUMMA` FROM ' + TableName +
           ' WHERE ' + FieldPayTab.IDProjectField + '=' + IntToStr(ActiveProjectID);
  SQLTab := TSQLiteTable.Create(DB, query);
- result := SQLTab.FieldAsInteger(SQLTab.FieldIndex['SUMMA']);
+ result := SQLTab.FieldAsDouble(SQLTab.FieldIndex['SUMMA']);
 end;
 
-procedure TPaymentControl.SetPayment(pay: integer);
+procedure TPaymentControl.SetPayment(pay: real);
+var
+ Query : string;
 begin
-  //
+ Query := 'INSERT INTO ' + TableName + ' (' +
+    FieldPayTab.LinkProjectField + ', '+
+    FieldPayTab.SumField + ', '+
+    FieldPayTab.PaymentDateField + ') VALUES ( '+
+    #39 + IntToStr(ActiveProjectID) + #39 + ', ' +
+    #39 + FloatToStr (pay) + #39 +  ', ' +
+    #39 + DatetoStr(now) + #39 + ')';
+ DB.ExecSQL(Query);
 end;
 
 

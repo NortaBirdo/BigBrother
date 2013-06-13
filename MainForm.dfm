@@ -26,12 +26,8 @@ object MainForm: TMainForm
     ActivePage = TabSheetProject
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 566
-    ExplicitHeight = 429
     object TabSheetSession: TTabSheet
       Caption = #1058#1077#1082#1091#1097#1072#1103' '#1089#1077#1089#1089#1080#1103
-      ExplicitWidth = 558
-      ExplicitHeight = 401
       object Label1: TLabel
         Left = 19
         Top = 21
@@ -282,8 +278,6 @@ object MainForm: TMainForm
     object TabSheetProject: TTabSheet
       Caption = #1055#1088#1086#1077#1082#1090#1099' '#1080' '#1089#1077#1089#1089#1080#1080
       ImageIndex = 1
-      ExplicitWidth = 579
-      ExplicitHeight = 405
       object Label5: TLabel
         Left = 11
         Top = 13
@@ -355,7 +349,6 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        Visible = False
       end
       object Label10: TLabel
         Left = 199
@@ -369,7 +362,6 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        Visible = False
       end
       object LabelTotelHours: TLabel
         Left = 416
@@ -396,7 +388,6 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        Visible = False
       end
       object LabelChekHours: TLabel
         Left = 416
@@ -410,7 +401,6 @@ object MainForm: TMainForm
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        Visible = False
       end
       object Label17: TLabel
         Left = 199
@@ -613,7 +603,6 @@ object MainForm: TMainForm
           FFFF00FFFFFF00FFFFFFF586C38B0E82C08700FFFFFF00FFFFFF00FFFFFF00FF
           FFFF00FFFFFF}
         TabOrder = 3
-        Visible = False
         OnClick = ButtonGetPaymentClick
       end
       object ListBoxProjects: TListBox
@@ -648,8 +637,6 @@ object MainForm: TMainForm
     object TabSheetSetting: TTabSheet
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       ImageIndex = 2
-      ExplicitWidth = 558
-      ExplicitHeight = 401
       object Label11: TLabel
         Left = 11
         Top = 53
@@ -882,7 +869,7 @@ object MainForm: TMainForm
     Left = 32
     Top = 384
     Bitmap = {
-      494C010103000800240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101030008002C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       00000000000000000000000000000000000000000000A2A2A200A2A2A200A2A2
       A200A2A2A2000000000000000000000000000000000000000000007D2100037B

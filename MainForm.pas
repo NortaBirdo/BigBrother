@@ -95,7 +95,7 @@ type
     procedure N4Click(Sender: TObject);
     procedure CheckBoxIsControlClick(Sender: TObject);
     procedure ListBoxProjectsClick(Sender: TObject);
-    procedure CalcTime;
+    function CalcTime: integer;
   private
     { Private declarations }
   public
@@ -119,7 +119,7 @@ var
   OneSession: TSession;
   ListSession :TSessionControl;
 
-  Pay: TPayInfo;
+  Pay: TPaymentInfo;
   PayList: TPaymentControl;
 
 implementation
@@ -188,18 +188,20 @@ begin
    end;
  CalcTime;
 
-{ TabName := 'PAYMENT_TAB';
+ TabName := 'PAYMENT_TAB';
 
  with Pay do
   begin
+    IDProjectField := 'ID_PAY';
+    LinkProjectField := 'L_PROJECT';
     SumField := 'PAYMENT_SUM';
-    IDProjectField := 'L_PROJECT';
+    PaymentDateField := 'PAYMENT_DATE';
   end;
 
  PayList := TPaymentControl.TPaymentControl(path, TabName, ListProject.arProject[0].IDProject, Pay);
- LabelPayedHours.Caption := IntToDateTimeStr(PayList.GetPayment);
+ LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
 
- LabelCost.Caption := FloatToStrF(ListProject.arProject[ListSession.ActiveProjectID].CostHour, ffFixed, 0,1);}
+// LabelCost.Caption := FloatToStrF(ListProject.arProject[ListSession.ActiveProjectID].CostHour, ffFixed, 0,1);
 end;
 
 //Out put Sessiones
@@ -207,6 +209,8 @@ procedure TMainForm.ListBoxProjectsClick(Sender: TObject);
 var
  path, TabName: string;
  i: integer;
+ r:integer;
+ v:real;
 begin
 
  if ListBoxProjects.Items.Count = 0 then exit;
@@ -215,12 +219,23 @@ begin
  //CLEAR TABLE
  StringGridSessions.RowCount := 1;
 
- //find project and get session
+ //find project and get session and payment
    for I := 0 to Length(ListProject.arProject) -1  do
     if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
        begin
        ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
+       PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
+
        LabelCost.Caption := FloatToStrF(ListProject.arProject[i].CostHour, ffFixed, 0, 1);
+       LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
+
+        //РАСЧЕТ ВРЕМЕНИ!!! ПЕРЕДЕЛАТЬ В ФУНКЦИЮ!!!!
+ //1) вычислить за сколько секунд заплатили = платеж / стоиомсть часа * 3600
+ //2) затраченное время - оплаченное время
+ //проверка на нули!!!!
+  v := PayList.GetPayment;
+  v := v / ListProject.arProject[i].CostHour;
+  v := v * 3600;
        end;
 
 
@@ -235,23 +250,32 @@ begin
     StringGridSessions.Cells[2, i + 1] := IntToDateTimeStr(ListSession.ArSession[i].ClearWorkTime);
    end;
 
- CalcTime;
+ r := CalcTime;
+
+ LabelTotelHours.Caption := IntToDateTimeStr(r);
+
+
+
+  //расчет времени продолжение
+  //расчет корректировать при предоплате.
+  LabelPayedHours.Caption := IntToDateTimeStr(r - (Round(v)));
+
 
 end;
 
 //Calculation Time
-procedure TMainForm.CalcTime;
+function TMainForm.CalcTime: integer;
 var
 i :integer;
 TotelCountTime: integer;
-t:TTime;
+t:TTime;                                      
 begin
 TotelCountTime := 0;
 if Length(ListSession.ArSession) <> 0 then
    for I := 0 to Length(ListSession.ArSession) - 1 do
     TotelCountTime := TotelCountTime + ListSession.ArSession[i].ClearWorkTime;
 
- LabelTotelHours.Caption := IntToDateTimeStr(TotelCountTime);
+ result := TotelCountTime;
 end;
 
 //close program
@@ -341,27 +365,10 @@ end;
 
 procedure TMainForm.TimerSessionTimer(Sender: TObject);
 var
- sTime: string;
  i: integer;
 begin
  StartTime := StartTime + 1;
- i := StartTime div 3599;
- sTime := '';
- if i < 10 then sTime := '0' + IntToStr(i)
-           else sTime := IntToStr(i);
-
- i := StartTime div 60;
- if(i-60) >= 0 then i := i - 60;
-
- if i < 10 then sTime := sTime + ':0' + IntToStr(i)
-           else sTime := sTime + ':' + IntToStr(i);
-
- i := StartTime mod 60;
- if i < 10 then sTime := sTime + ':0' + IntToStr(i)
-           else sTime := sTime + ':' + IntToStr(i);
-
- LabelTimeCount.Caption := sTime;
-
+ LabelTimeCount.Caption := IntToDateTimeStr(StartTime);
 end;
 
 procedure TMainForm.ButtonPauseSessionClick(Sender: TObject);
@@ -396,11 +403,12 @@ begin
 
 end;
 
-//Job with payment
+//Add project payment
 procedure TMainForm.ButtonGetPaymentClick(Sender: TObject);
 var
 str:string;
-sumpay, i: integer;
+sumpay:real;
+i: integer;
 begin
  if ListBoxProjects.ItemIndex < 0 then
   begin
@@ -408,20 +416,20 @@ begin
     exit;
   end;
 
- str := InputBox('Ввод оплаты', 'Введите количество оплаченных часов по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
+ str := InputBox('Ввод оплаты', 'Введите размер платежа по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
  try
-  sumPay := StrToInt(str);
+  sumPay := StrToFloat(str);
  except
-  ShowMessage('Вы должны ввести целое число часов.');
+  ShowMessage('Вы должны ввести целое или дробоное число.');
   exit;
  end;
 
-{ for I := 0 to Length(ListProject.arProject) -1  do
+ for I := 0 to Length(ListProject.arProject) -1  do
     if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
        PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
 
  PayList.SetPayment(SumPay);
- LabelPayedHours.Caption := IntToDateTimeStr(PayList.GetPayment);}
+
 
 end;
 
