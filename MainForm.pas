@@ -1,6 +1,6 @@
 {Unit MainForm;
 Version: 1.5;
-Date of last editing: 16/05/13 19:46
+Date of last editing: 14/06/13 10:56
 Bond: ShellAPI, DBUnit, DateTimeTransformUnit
 
 developer: Sokolovskiy Nikolay
@@ -126,13 +126,15 @@ implementation
 
 {$R *.dfm}
 
-uses EditProjectFormUnit, DateTimeTransformUnit;
+uses EditProjectFormUnit, DateTimeTransformUnit, MyUtilsUnit, SQLiteWrap,
+  SQLite3;
 
 //Start program
 procedure TMainForm.FormCreate(Sender: TObject);
 var
  path, TabName: string;
  i: integer;
+ DB: TSQLiteDatabase;
 begin
  Application.OnMinimize := OnMinimizeProc;
  PageControl1.TabIndex := 0;
@@ -143,7 +145,10 @@ begin
  //Get projects from DB
  GetDir (0, Path);
  Path := path + '\DB.db';
+
+ DB := TSQLiteDatabase.Create(path);
  TabName := 'PROJECT_TAB';
+
 
  with ProjInfo do
   begin
@@ -152,7 +157,7 @@ begin
    CostHourField := 'COST_HOUR';
   end;
 
- ListProject := TProjectControl.TProjectControl(path, TabName, ProjInfo);
+ ListProject := TProjectControl.TProjectControl(DB, TabName, ProjInfo);
  //Out put project's list
  ListBoxProjects.Items.Clear;
  ComboBoxProject.Items.Clear;
@@ -176,7 +181,7 @@ begin
  if Length(ListProject.arProject) = 0 then exit;
 
  OneSession.IDProjectField := ListProject.arProject[0].IDProject;
- ListSession := TSessionControl.TSessionControl(path, TabName, SessInfo, OneSession);
+ ListSession := TSessionControl.TSessionControl(DB, TabName, SessInfo, OneSession);
  LabelCost.Caption := FloatToStrF(ListProject.arProject[0].CostHour, ffFixed, 0,1);
 
  StringGridSessions.RowCount := Length (ListSession.ArSession) + 1;
@@ -198,10 +203,9 @@ begin
     PaymentDateField := 'PAYMENT_DATE';
   end;
 
- PayList := TPaymentControl.TPaymentControl(path, TabName, ListProject.arProject[0].IDProject, Pay);
+ PayList := TPaymentControl.TPaymentControl(DB, TabName, ListProject.arProject[0].IDProject, Pay);
  LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
 
-// LabelCost.Caption := FloatToStrF(ListProject.arProject[ListSession.ActiveProjectID].CostHour, ffFixed, 0,1);
 end;
 
 //Out put Sessiones
@@ -209,8 +213,7 @@ procedure TMainForm.ListBoxProjectsClick(Sender: TObject);
 var
  path, TabName: string;
  i: integer;
- r:integer;
- v:real;
+ iCalcTime, r :integer;
 begin
 
  if ListBoxProjects.Items.Count = 0 then exit;
@@ -222,21 +225,18 @@ begin
  //find project and get session and payment
    for I := 0 to Length(ListProject.arProject) -1  do
     if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
-       begin
+      begin
+       //Prepare Object
        ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
        PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
 
+       //Get Cost Hour and Paymnts
        LabelCost.Caption := FloatToStrF(ListProject.arProject[i].CostHour, ffFixed, 0, 1);
        LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
 
-        //РАСЧЕТ ВРЕМЕНИ!!! ПЕРЕДЕЛАТЬ В ФУНКЦИЮ!!!!
- //1) вычислить за сколько секунд заплатили = платеж / стоиомсть часа * 3600
- //2) затраченное время - оплаченное время
- //проверка на нули!!!!
-  v := PayList.GetPayment;
-  v := v / ListProject.arProject[i].CostHour;
-  v := v * 3600;
-       end;
+       //calc payed time
+       iCalcTime := CalcPayedTime(PayList.GetPayment, ListProject.arProject[i].CostHour);
+      end;
 
 
  ListSession.UpDateSession;
@@ -251,16 +251,10 @@ begin
    end;
 
  r := CalcTime;
-
  LabelTotelHours.Caption := IntToDateTimeStr(r);
-
-
-
-  //расчет времени продолжение
-  //расчет корректировать при предоплате.
-  LabelPayedHours.Caption := IntToDateTimeStr(r - (Round(v)));
-
-
+ //расчет корректировать при предоплате.
+ LabelPayedHours.Caption := IntToDateTimeStr(iCalcTime);
+ LabelChekHours.Caption := IntToDateTimeStr(r - iCalcTime);
 end;
 
 //Calculation Time
@@ -400,7 +394,7 @@ begin
  OneSession.FinishSession := now;
  OneSession.ClearWorkTime :=  StartTime;
  ListSession.AddSession(OneSession);
-
+ ListBoxProjectsClick(sender);
 end;
 
 //Add project payment
@@ -416,7 +410,7 @@ begin
     exit;
   end;
 
- str := InputBox('Ввод оплаты', 'Введите размер платежа по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
+ str := InputBox('Ввод оплаты', 'Введите размер платежа в $ по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
  try
   sumPay := StrToFloat(str);
  except
@@ -429,7 +423,7 @@ begin
        PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
 
  PayList.SetPayment(SumPay);
-
+ ListBoxProjectsClick(sender);
 
 end;
 
@@ -459,6 +453,7 @@ begin
         ComboBoxProject.Items.Add(ListProject.arProject[i].NameProject);
         end;
      ShowMessage('Проект добавлен.');
+     ListBoxProjectsClick(sender);
    end;
   end;
 end;

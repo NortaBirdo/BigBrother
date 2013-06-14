@@ -7,7 +7,8 @@ uses
   EditProjectFormUnit in 'EditProjectFormUnit.pas' {EditProjectForm},
   SQLite3 in 'SQLite3.pas',
   SQLiteWrap in 'SQLiteWrap.pas',
-  DateTimeTransformUnit in 'DateTimeTransformUnit.pas';
+  DateTimeTransformUnit in 'DateTimeTransformUnit.pas',
+  MyUtilsUnit in 'MyUtilsUnit.pas';
 
 {$R *.res}
 

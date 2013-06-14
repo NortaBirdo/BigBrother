@@ -1,6 +1,6 @@
 {Unit DBUnit;
 Version: 1.2;
-Date of last editing: 16/05/13 19:46
+Date of last editing: 14/06/13 10:56
 Bond: SQLiteWraper, SQLite3, Vcl.Dialogs, System.SysUtils
 
 developer: Sokolovskiy Nikolay
@@ -80,7 +80,7 @@ type
   public
    ArSession: array of TSession;   //array of sesion
    ActiveProjectID: integer;
-   constructor TSessionControl (path, TabName: string; SessionInfo :TSessionInfo; Session :TSession);    //Inizialization array 0
+   constructor TSessionControl (DBexe: TSQLiteDatabase; TabName: string; SessionInfo :TSessionInfo; Session :TSession);    //Inizialization array 0
    procedure AddSession (NewSession: TSession); //Add new sesion in DB
    procedure DeleteSession;
    procedure UpDateSession;
@@ -96,7 +96,7 @@ type
    FieldProjectTab: TProjectInfo;
   public
    arProject: array of TProject;                        //Array of project
-   constructor TProjectControl (path, TabName: string; ProjectInfo :TProjectInfo); //inicializtion of array
+   constructor TProjectControl (DBexe:TSQLiteDatabase; TabName: string; ProjectInfo :TProjectInfo); //inicializtion of array
    procedure AddProject(NewProject: TProject);           //Add new project in DB
    procedure DeleteProject (IDProject: integer);          //Delete old Project with session
    procedure ChangeProject (NewProject: TProject; IDProject: integer); //Edit project
@@ -112,20 +112,21 @@ type
    FieldPayTab: TPaymentInfo;
   public
    ActiveProjectID: integer;
-   constructor TPaymentControl (path, TabName: string; ID: integer; FieldPay: TPaymentInfo); //inicializtion of array
-   function GetPayment: real;                 //Add new project in DB
-   procedure SetPayment (pay: real);          //Delete old Project with session
+   constructor TPaymentControl (DBexe:TSQLiteDatabase; TabName: string; ID: integer; FieldPay: TPaymentInfo);
+   function GetPayment: real;                 //Get Payment for contract
+   procedure SetPayment (pay: real);          //Add payment for contract
+   //procedure DeletePayment                  //TODO!!!
   end;
 
 implementation
 
 { TProjectControl }
-constructor TProjectControl.TProjectControl(path, TabName: string; ProjectInfo :TProjectInfo);
+constructor TProjectControl.TProjectControl(DBexe:TSQLiteDatabase; TabName: string; ProjectInfo :TProjectInfo);
 var
  Query: string;
 begin
 try
- DB := TSQLiteDatabase.Create(path);
+ DB := DBexe;
  TableName := TabName;
  Query := 'SELECT * FROM ' + TableName;
  SQLTab := TSQLiteTable.Create(DB, Query);
@@ -208,10 +209,10 @@ end;
 
 { TSessionControl }
 
-constructor TSessionControl.TSessionControl(Path, TabName :string; SessionInfo :TSessionInfo; Session :TSession);
+constructor TSessionControl.TSessionControl(DBexe: TSQLiteDatabase; TabName :string; SessionInfo :TSessionInfo; Session :TSession);
 begin
 try
- DB := TSQLiteDatabase.Create(path);
+ DB := DBexe;
  TableName := TabName;
  ActiveProjectID := Session.IDProjectField;
  FieldSessionTab := SessionInfo;
@@ -279,11 +280,11 @@ end;
 
 { TPaymentControl }
 
-constructor TPaymentControl.TPaymentControl(path, TabName: string; ID: integer;
+constructor TPaymentControl.TPaymentControl(DBexe:TSQLiteDatabase; TabName: string; ID: integer;
   FieldPay: TPaymentInfo);
 begin
 try
- DB := TSQLiteDatabase.Create(path);
+ DB := DBexe;
  TableName := TabName;
  ActiveProjectID := ID;
  FieldPayTab := FieldPay;
@@ -297,10 +298,10 @@ function TPaymentControl.GetPayment: real;
 var
  Query : string;
 begin
- Query := 'SELECT SUM(' + FieldPayTab.SumField + ') AS `SUMMA` FROM ' + TableName +
-          ' WHERE ' + FieldPayTab.IDProjectField + '=' + IntToStr(ActiveProjectID);
+ Query := 'SELECT SUM(' + FieldPayTab.SumField + ') FROM ' + TableName +
+          ' WHERE ' + FieldPayTab.LinkProjectField + '=' + IntToStr(ActiveProjectID);
  SQLTab := TSQLiteTable.Create(DB, query);
- result := SQLTab.FieldAsDouble(SQLTab.FieldIndex['SUMMA']);
+ result := SQLTab.FieldAsDouble(0);
 end;
 
 procedure TPaymentControl.SetPayment(pay: real);
