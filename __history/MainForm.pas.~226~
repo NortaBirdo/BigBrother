@@ -80,6 +80,7 @@ type
     LabelCost: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure N2Click(Sender: TObject);
+    procedure OnMinimizeProc(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonStartSessionClick(Sender: TObject);
     procedure TimerSessionTimer(Sender: TObject);
@@ -94,7 +95,10 @@ type
     procedure CheckBoxIsControlClick(Sender: TObject);
     procedure ListBoxProjectsClick(Sender: TObject);
     function CalcTime: integer;
+    procedure Ic(n: integer; Icon: TIcon);
 
+  protected
+    Procedure ControlWindow(Var Msg:TMessage); message WM_SYSCOMMAND;
   private
     { Private declarations }
   public
@@ -135,6 +139,7 @@ var
  i: integer;
  DB: TSQLiteDatabase;
 begin
+ Application.OnMinimize := OnMinimizeProc;
  PageControl1.TabIndex := 0;
  StringGridSessions.Cells[0,0] := 'Старт сессии';
  StringGridSessions.Cells[1,0] := 'Окончание сессии';
@@ -283,6 +288,53 @@ procedure TMainForm.N4Click(Sender: TObject);
 begin
  ShowMessage('Программа для отслеживания рабочего времени. Автор: Соколовский Николай. E-mail: sokolovskynik@gmail.com');
 end;
+
+//minimimalization window in tray
+procedure TMainForm.Ic(n: integer; Icon: TIcon);
+Var Nim:TNotifyIconData;
+begin
+ With Nim do
+  Begin
+   cbSize := System.SizeOf(Nim);
+   Wnd := Application.MainFormHandle;
+   uID := 1;
+   uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+   hicon := Icon.Handle;
+   uCallbackMessage := wm_user+1;
+   szTip := 'Большой брат';
+  End;
+ Case n OF
+  1: Shell_NotifyIcon(Nim_Add,@Nim);
+  2: Shell_NotifyIcon(Nim_Delete,@Nim);
+  3: Shell_NotifyIcon(Nim_Modify,@Nim);
+ End;
+end;
+
+
+procedure TMainForm.ControlWindow(var Msg: TMessage);
+begin
+ IF Msg.WParam=SC_MINIMIZE then
+  Begin
+   Ic(1,Application.Icon);  // Добавляем значок в трей
+   ShowWindow(Handle,SW_HIDE);  // Скрываем программу
+   ShowWindow(Application.Handle,SW_HIDE);  // Скрываем кнопку с TaskBar'а
+ End else inherited;
+
+ if Msg.WParam = SC_MAXIMIZE then
+  begin
+    Ic (2, Application.Icon);
+    ShowWindow(Handle, SW_SHOW);
+    ShowWindow(Application.Handle, SW_SHOW);
+  end;
+
+end;
+
+
+procedure TMainForm.OnMinimizeProc(Sender: TObject);
+begin
+  PostMessage(Handle,WM_SYSCOMMAND,SC_MINIMIZE,0);
+end;
+
 
 procedure TMainForm.ButtonSaveClick(Sender: TObject);
 begin

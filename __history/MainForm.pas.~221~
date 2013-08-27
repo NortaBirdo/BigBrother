@@ -80,6 +80,8 @@ type
     LabelCost: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure N2Click(Sender: TObject);
+    procedure OnMinimizeProc(Sender: TObject);
+    procedure WndProc (var Message: TMessage);
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonStartSessionClick(Sender: TObject);
     procedure TimerSessionTimer(Sender: TObject);
@@ -94,7 +96,6 @@ type
     procedure CheckBoxIsControlClick(Sender: TObject);
     procedure ListBoxProjectsClick(Sender: TObject);
     function CalcTime: integer;
-
   private
     { Private declarations }
   public
@@ -135,6 +136,7 @@ var
  i: integer;
  DB: TSQLiteDatabase;
 begin
+ Application.OnMinimize := OnMinimizeProc;
  PageControl1.TabIndex := 0;
  StringGridSessions.Cells[0,0] := 'Старт сессии';
  StringGridSessions.Cells[1,0] := 'Окончание сессии';
@@ -282,6 +284,49 @@ end;
 procedure TMainForm.N4Click(Sender: TObject);
 begin
  ShowMessage('Программа для отслеживания рабочего времени. Автор: Соколовский Николай. E-mail: sokolovskynik@gmail.com');
+end;
+
+//minimimalization window in tray
+procedure TMainForm.OnMinimizeProc(Sender: TObject);
+begin
+ Fhandle := AllocateHWnd(WndProc);
+ hIcon1 := CopyIcon (Application.Icon.Handle);
+ with noIconData do
+  begin
+    //cbSize := Sizeof(TNotifyIconData);
+    Wnd := FHandle;
+    uID := 0;
+    uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
+    SzTip := 'Big Brother';
+    HIcon := Hicon1;
+    uCallBackMessage := Ico_message;
+  end;
+
+  Shell_NotifyIcon(NIM_ADD, @noIconData);
+  MainForm1.Hide;
+end;
+
+//hooking system messages
+procedure TMainForm.WndProc(var Message: TMessage);
+begin
+ if Message.LParam=WM_LBUTTONUP then
+  begin
+//    MainForm1.Show;
+    DeallocateHWnd (FHandle);
+    Shell_NotifyIcon(NIM_DELETE, @noIconData);// distroy tray icon
+    ShowWindow(Application.Handle,SW_SHOW);   //repair buttin of program
+    ShowWindow(Handle,SW_SHOW);               //show window
+    ShowWindow(Handle,SW_SHOWMAXIMIZED);
+    //MainForm1.PageControl1.Repaint;
+    {Application.Restore;
+    Application.BringToFront;
+    Application.ProcessMessages;}
+  end;
+  if Message.LParam = WM_RBUTTONUP then
+   begin
+     MainForm1.PopupMenu1.Popup(Screen.Width-32, Screen.Height-32);
+   end;
+
 end;
 
 procedure TMainForm.ButtonSaveClick(Sender: TObject);

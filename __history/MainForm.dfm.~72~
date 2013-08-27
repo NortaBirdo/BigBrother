@@ -4,8 +4,8 @@ object MainForm: TMainForm
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1041#1086#1083#1100#1096#1086#1081' '#1073#1088#1072#1090
-  ClientHeight = 429
-  ClientWidth = 566
+  ClientHeight = 455
+  ClientWidth = 592
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,16 +21,17 @@ object MainForm: TMainForm
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 566
-    Height = 429
+    Width = 592
+    Height = 455
     ActivePage = TabSheetProject
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 546
     object TabSheetSession: TTabSheet
       Caption = #1058#1077#1082#1091#1097#1072#1103' '#1089#1077#1089#1089#1080#1103
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label1: TLabel
         Left = 19
         Top = 21
@@ -281,8 +282,6 @@ object MainForm: TMainForm
     object TabSheetProject: TTabSheet
       Caption = #1055#1088#1086#1077#1082#1090#1099' '#1080' '#1089#1077#1089#1089#1080#1080
       ImageIndex = 1
-      ExplicitWidth = 281
-      ExplicitHeight = 165
       object Label5: TLabel
         Left = 11
         Top = 13
@@ -300,7 +299,7 @@ object MainForm: TMainForm
         Left = 191
         Top = 0
         Width = 2
-        Height = 401
+        Height = 424
         Align = alNone
       end
       object Label6: TLabel
@@ -344,7 +343,7 @@ object MainForm: TMainForm
       end
       object Label9: TLabel
         Left = 199
-        Top = 353
+        Top = 378
         Width = 146
         Height = 19
         Caption = #1048#1079' '#1085#1080#1093' '#1086#1087#1083#1072#1095#1077#1085#1086':'
@@ -357,7 +356,7 @@ object MainForm: TMainForm
       end
       object Label10: TLabel
         Left = 199
-        Top = 379
+        Top = 404
         Width = 134
         Height = 19
         Caption = #1050' '#1086#1087#1083#1072#1090#1077' '#1095#1072#1089#1086#1074':'
@@ -383,7 +382,7 @@ object MainForm: TMainForm
       end
       object LabelPayedHours: TLabel
         Left = 416
-        Top = 353
+        Top = 378
         Width = 10
         Height = 19
         Caption = '0'
@@ -396,7 +395,33 @@ object MainForm: TMainForm
       end
       object LabelChekHours: TLabel
         Left = 416
-        Top = 378
+        Top = 403
+        Width = 10
+        Height = 19
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label17: TLabel
+        Left = 199
+        Top = 353
+        Width = 147
+        Height = 19
+        Caption = #1057#1090#1086#1080#1084#1086#1089#1090#1100' ($/'#1095'): '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object LabelCost: TLabel
+        Left = 416
+        Top = 352
         Width = 10
         Height = 19
         Caption = '0'
@@ -408,9 +433,9 @@ object MainForm: TMainForm
         ParentFont = False
       end
       object ButtonEditProject: TBitBtn
-        Left = 64
+        Left = 66
         Top = 305
-        Width = 66
+        Width = 64
         Height = 25
         Glyph.Data = {
           42040000424D4204000000000000420000002800000010000000100000000100
@@ -449,6 +474,7 @@ object MainForm: TMainForm
           8C4FF7C88D4FF7C98C4FF7C78B4FD4C5894B91C4763B06B3683C00FFFFFF00FF
           FFFF00FFFFFF}
         TabOrder = 0
+        OnClick = ButtonEditProjectClick
       end
       object ButtonDeleteProject: TBitBtn
         Left = 128
@@ -492,6 +518,7 @@ object MainForm: TMainForm
           FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF
           FFFF00FFFFFF}
         TabOrder = 1
+        OnClick = ButtonDeleteProjectClick
       end
       object ButtonAddProject: TBitBtn
         Left = 11
@@ -535,6 +562,7 @@ object MainForm: TMainForm
           FFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF
           FFFF00FFFFFF}
         TabOrder = 2
+        OnClick = ButtonAddProjectClick
       end
       object ButtonGetPayment: TBitBtn
         Left = 11
@@ -581,7 +609,7 @@ object MainForm: TMainForm
         TabOrder = 3
         OnClick = ButtonGetPaymentClick
       end
-      object ListBox1: TListBox
+      object ListBoxProjects: TListBox
         Left = 11
         Top = 38
         Width = 174
@@ -592,11 +620,12 @@ object MainForm: TMainForm
           '2'
           'fdhsg gfjlkdlfg sdk jlsddhdkj')
         TabOrder = 4
+        OnClick = ListBoxProjectsClick
       end
       object StringGridSessions: TStringGrid
         Left = 199
         Top = 38
-        Width = 356
+        Width = 377
         Height = 259
         ColCount = 3
         FixedCols = 0
@@ -604,16 +633,19 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         TabOrder = 5
         ColWidths = (
-          104
-          101
-          123)
+          112
+          111
+          126)
       end
     end
     object TabSheetSetting: TTabSheet
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       ImageIndex = 2
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label11: TLabel
         Left = 11
         Top = 53
@@ -749,6 +781,7 @@ object MainForm: TMainForm
         ParentFont = False
         State = cbChecked
         TabOrder = 5
+        OnClick = CheckBoxIsControlClick
       end
       object ButtonSave: TBitBtn
         Left = 11
@@ -820,12 +853,7 @@ object MainForm: TMainForm
       Caption = #1055#1086#1084#1086#1097#1100
       object N4: TMenuItem
         Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
-      end
-      object N5: TMenuItem
-        Caption = '-'
-      end
-      object N6: TMenuItem
-        Caption = #1057#1087#1088#1072#1074#1082#1072
+        OnClick = N4Click
       end
     end
   end
@@ -850,7 +878,7 @@ object MainForm: TMainForm
     Left = 32
     Top = 384
     Bitmap = {
-      494C010103000800140010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010103000800380010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       00000000000000000000000000000000000000000000A2A2A200A2A2A200A2A2
       A200A2A2A2000000000000000000000000000000000000000000007D2100037B
@@ -992,7 +1020,7 @@ object MainForm: TMainForm
   object TimerSession: TTimer
     Enabled = False
     OnTimer = TimerSessionTimer
-    Left = 200
-    Top = 376
+    Left = 520
+    Top = 336
   end
 end

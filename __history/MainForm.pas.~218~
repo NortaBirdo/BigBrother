@@ -1,7 +1,7 @@
 {Unit MainForm;
-Version: 1.0;
-Date of last editing: 24/04/13 22:50
-Bond: ShellAPI
+Version: 1.5;
+Date of last editing: 14/06/13 10:56
+Bond: ShellAPI, DBUnit, DateTimeTransformUnit
 
 developer: Sokolovskiy Nikolay
 e-mail: sokolovskynik@gmail.com
@@ -16,7 +16,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.Menus, Vcl.StdCtrls,
   Vcl.Buttons, ShellAPI, Vcl.ImgList, Vcl.ExtCtrls, Vcl.Grids,
-  DBUnit;
+  DBUnit, DateUtils;
 
 type
   TMainForm = class(TForm)
@@ -76,6 +76,8 @@ type
     ButtonSave: TBitBtn;
     UpDown3: TUpDown;
     TimerSession: TTimer;
+    Label17: TLabel;
+    LabelCost: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure N2Click(Sender: TObject);
     procedure OnMinimizeProc(Sender: TObject);
@@ -92,6 +94,8 @@ type
     procedure ButtonDeleteProjectClick(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure CheckBoxIsControlClick(Sender: TObject);
+    procedure ListBoxProjectsClick(Sender: TObject);
+    function CalcTime: integer;
   private
     { Private declarations }
   public
@@ -111,17 +115,26 @@ var
   ProjInfo: TProjectInfo;
   OneProject: TProject;
 
+  SessInfo: TSessionInfo;
+  OneSession: TSession;
+  ListSession :TSessionControl;
+
+  Pay: TPaymentInfo;
+  PayList: TPaymentControl;
+
 implementation
 
 {$R *.dfm}
 
-uses EditProjectFormUnit;
+uses EditProjectFormUnit, DateTimeTransformUnit, MyUtilsUnit, SQLiteWrap,
+  SQLite3;
 
 //Start program
 procedure TMainForm.FormCreate(Sender: TObject);
 var
  path, TabName: string;
  i: integer;
+ DB: TSQLiteDatabase;
 begin
  Application.OnMinimize := OnMinimizeProc;
  PageControl1.TabIndex := 0;
@@ -132,7 +145,10 @@ begin
  //Get projects from DB
  GetDir (0, Path);
  Path := path + '\DB.db';
+
+ DB := TSQLiteDatabase.Create(path);
  TabName := 'PROJECT_TAB';
+
 
  with ProjInfo do
   begin
@@ -141,15 +157,119 @@ begin
    CostHourField := 'COST_HOUR';
   end;
 
- ListProject := TProjectControl.TProjectControl(path, TabName, ProjInfo);
+ ListProject := TProjectControl.TProjectControl(DB, TabName, ProjInfo);
  //Out put project's list
  ListBoxProjects.Items.Clear;
+ ComboBoxProject.Items.Clear;
  for I := 0 to Length(ListProject.arProject) -1  do
   begin
     ListBoxProjects.Items.Add(ListProject.arProject[i].NameProject);
+    ComboBoxProject.Items.Add(ListProject.arProject[i].NameProject);
   end;
 
+ //prepare info for session object
+ TabName := 'SESSION_TAB';
 
+ with SessInfo do
+  begin
+   IDProjectFieldField := 'L_PROJ';
+   StartSessionField := 'START_DATE';
+   FinishSessionField := 'FINISH_DATE';
+   ClearWorkTimeField := 'CLEAR_WORK_TIME';
+  end;
+
+ if Length(ListProject.arProject) = 0 then exit;
+
+ OneSession.IDProjectField := ListProject.arProject[0].IDProject;
+ ListSession := TSessionControl.TSessionControl(DB, TabName, SessInfo, OneSession);
+ LabelCost.Caption := FloatToStrF(ListProject.arProject[0].CostHour, ffFixed, 0,1);
+
+ StringGridSessions.RowCount := Length (ListSession.ArSession) + 1;
+ for I := 0 to Length (ListSession.ArSession) - 1 do
+   begin
+    StringGridSessions.Cells[0, i + 1] := DateTimeToStr(ListSession.ArSession[i].StartSession);
+    StringGridSessions.Cells[1, i + 1] := DateTimeToStr(ListSession.ArSession[i].FinishSession);
+    StringGridSessions.Cells[2, i + 1] := IntToDateTimeStr(ListSession.ArSession[i].ClearWorkTime);
+   end;
+ CalcTime;
+
+ TabName := 'PAYMENT_TAB';
+
+ with Pay do
+  begin
+    IDProjectField := 'ID_PAY';
+    LinkProjectField := 'L_PROJECT';
+    SumField := 'PAYMENT_SUM';
+    PaymentDateField := 'PAYMENT_DATE';
+  end;
+
+ PayList := TPaymentControl.TPaymentControl(DB, TabName, ListProject.arProject[0].IDProject, Pay);
+ LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
+
+end;
+
+//Out put Sessiones
+procedure TMainForm.ListBoxProjectsClick(Sender: TObject);
+var
+ path, TabName: string;
+ i: integer;
+ iCalcTime, r :integer;
+begin
+
+ if ListBoxProjects.Items.Count = 0 then exit;
+ if ListBoxProjects.ItemIndex < 0 then exit;
+
+ //CLEAR TABLE
+ StringGridSessions.RowCount := 1;
+
+ //find project and get session and payment
+   for I := 0 to Length(ListProject.arProject) -1  do
+    if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
+      begin
+       //Prepare Object
+       ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
+       PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
+
+       //Get Cost Hour and Paymnts
+       LabelCost.Caption := FloatToStrF(ListProject.arProject[i].CostHour, ffFixed, 0, 1);
+       LabelPayedHours.Caption := FloatToStr(PayList.GetPayment);
+
+       //calc payed time
+       iCalcTime := CalcPayedTime(PayList.GetPayment, ListProject.arProject[i].CostHour);
+      end;
+
+
+ ListSession.UpDateSession;
+ ListSession.getsession;
+ //Out put project's list
+ StringGridSessions.RowCount := Length (ListSession.ArSession) + 1;
+ for I := 0 to Length (ListSession.ArSession) - 1 do
+   begin
+    StringGridSessions.Cells[0, i + 1] := DateTimeToStr(ListSession.ArSession[i].StartSession);
+    StringGridSessions.Cells[1, i + 1] := DateTimeToStr(ListSession.ArSession[i].FinishSession);
+    StringGridSessions.Cells[2, i + 1] := IntToDateTimeStr(ListSession.ArSession[i].ClearWorkTime);
+   end;
+
+ r := CalcTime;
+ LabelTotelHours.Caption := IntToDateTimeStr(r);
+ //расчет корректировать при предоплате.
+ LabelPayedHours.Caption := IntToDateTimeStr(iCalcTime);
+ LabelChekHours.Caption := IntToDateTimeStr(r - iCalcTime);
+end;
+
+//Calculation Time
+function TMainForm.CalcTime: integer;
+var
+i :integer;
+TotelCountTime: integer;
+t:TTime;                                      
+begin
+TotelCountTime := 0;
+if Length(ListSession.ArSession) <> 0 then
+   for I := 0 to Length(ListSession.ArSession) - 1 do
+    TotelCountTime := TotelCountTime + ListSession.ArSession[i].ClearWorkTime;
+
+ result := TotelCountTime;
 end;
 
 //close program
@@ -194,6 +314,7 @@ begin
     Shell_NotifyIcon(NIM_DELETE, @noIconData);// distroy tray icon
     ShowWindow(Application.Handle,SW_SHOW);   //repair buttin of program
     ShowWindow(Handle,SW_SHOW);               //show window
+    MainForm1.PageControl1.Repaint;
     {Application.Restore;
     Application.BringToFront;
     Application.ProcessMessages;}
@@ -219,6 +340,8 @@ end;
 
 //Working with session's time
 procedure TMainForm.ButtonStartSessionClick(Sender: TObject);
+var
+ i: integer;
 begin
  TimerSession.Enabled := true;
  LabelStartDT.Caption := DateTimeToStr(now);
@@ -227,32 +350,20 @@ begin
  ButtonPauseSession.Enabled := true;
  ComboBoxProject.Enabled := false;
 
+ for I := 0 to Length(ListProject.arProject) -1  do
+   if ListProject.arProject[i].NameProject =  ComboBoxProject.Items.Strings[ComboBoxProject.ItemIndex] then
+      ListSession.ActiveProjectID := ListProject.arProject[i].IDProject;
+ OneSession.StartSession := now;
+
  StartTime := 0;
 end;
 
 procedure TMainForm.TimerSessionTimer(Sender: TObject);
 var
- sTime: string;
  i: integer;
 begin
  StartTime := StartTime + 1;
- i := StartTime div 3599;
- sTime := '';
- if i < 10 then sTime := '0' + IntToStr(i)
-           else sTime := IntToStr(i);
-
- i := StartTime div 60;
- if(i-60) >= 0 then i := i - 60;
-
- if i < 10 then sTime := sTime + ':0' + IntToStr(i)
-           else sTime := sTime + ':' + IntToStr(i);
-
- i := StartTime mod 60;
- if i < 10 then sTime := sTime + ':0' + IntToStr(i)
-           else sTime := sTime + ':' + IntToStr(i);
-
- LabelTimeCount.Caption := sTime;
-
+ LabelTimeCount.Caption := IntToDateTimeStr(StartTime);
 end;
 
 procedure TMainForm.ButtonPauseSessionClick(Sender: TObject);
@@ -272,18 +383,27 @@ begin
 end;
 
 procedure TMainForm.ButtonFinishSessionClick(Sender: TObject);
+var
+ I :integer;
 begin
  TimerSession.Enabled := false;
  ButtonStartSession.Enabled := true;
  ButtonFinishSession.Enabled := false;
  ButtonPauseSession.Enabled := false;
  ComboBoxProject.Enabled := true;
+
+ OneSession.FinishSession := now;
+ OneSession.ClearWorkTime :=  StartTime;
+ ListSession.AddSession(OneSession);
+ ListBoxProjectsClick(sender);
 end;
 
-//Job with payment
+//Add project payment
 procedure TMainForm.ButtonGetPaymentClick(Sender: TObject);
 var
 str:string;
+sumpay:real;
+i: integer;
 begin
  if ListBoxProjects.ItemIndex < 0 then
   begin
@@ -291,8 +411,20 @@ begin
     exit;
   end;
 
- str := InputBox('Ввод оплаты', 'Введите полученную сумму в $ по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
- ShowMessage(Str);
+ str := InputBox('Ввод оплаты', 'Введите размер платежа в $ по проекту: ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex], '0');
+ try
+  sumPay := StrToFloat(str);
+ except
+  ShowMessage('Вы должны ввести целое или дробоное число.');
+  exit;
+ end;
+
+ for I := 0 to Length(ListProject.arProject) -1  do
+    if ListProject.arProject[i].NameProject =  ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
+       PayList.ActiveProjectID := ListProject.arProject[i].IDProject;
+
+ PayList.SetPayment(SumPay);
+ ListBoxProjectsClick(sender);
 
 end;
 
@@ -301,6 +433,7 @@ end;
 procedure TMainForm.ButtonAddProjectClick(Sender: TObject);
 var
 str: string;
+i: integer;
 begin
  EditProjectform.ProjectName := '';
  EditProjectform.Cost := 0;
@@ -310,7 +443,19 @@ begin
   begin
    OneProject.NameProject := EditProjectform.ProjectName;
    OneProject.CostHour := EditProjectform.Cost;
-   ListProject.AddProject(OneProject);
+   try
+    ListProject.AddProject(OneProject);
+   finally
+     ListBoxProjects.Items.Clear;
+     ComboBoxProject.Items.Clear;
+      for I := 0 to Length(ListProject.arProject) -1  do
+        begin
+        ListBoxProjects.Items.Add(ListProject.arProject[i].NameProject);
+        ComboBoxProject.Items.Add(ListProject.arProject[i].NameProject);
+        end;
+     ShowMessage('Проект добавлен.');
+     ListBoxProjectsClick(sender);
+   end;
   end;
 end;
 
@@ -318,21 +463,57 @@ end;
 procedure TMainForm.ButtonEditProjectClick(Sender: TObject);
 var
 str: string;
+i, ID: integer;
 begin
- EditProjectform.ProjectName := '345';
- EditProjectform.Cost := 45;
+ //finding project's ID
+ if ListBoxProjects.ItemIndex < 0 then
+   begin
+    ShowMessage('Выберите проект для изменения.');
+    exit;
+  end;
+
+ for I := 0 to Length(ListProject.arProject) - 1 do
+  begin
+    if ListProject.arProject[i].NameProject =
+      ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
+      begin
+       ID := ListProject.arProject[i].IDProject;
+       EditProjectform.ProjectName := ListProject.arProject[i].NameProject;
+       EditProjectform.Cost := ListProject.arProject[i].CostHour;
+       break;
+      end;
+  end;
+
+
  EditProjectform.ShowModal;
+
  if EditProjectform.flag then
   //If press button "Ok"
   begin
-   showMessage(EditProjectform.ProjectName);
-   showMessage(FloatToStr(EditProjectform.Cost));
+  OneProject.NameProject := EditProjectform.ProjectName;
+  OneProject.CostHour := EditProjectform.Cost;
+  try
+   ListProject.ChangeProject(OneProject, ID);
+  except
+   ShowMessage('Ошибка доступа к базе');
+  end;
+
+   ListBoxProjects.Items.Clear;
+   ComboBoxProject.Items.Clear;
+   for I := 0 to Length(ListProject.arProject) -1  do
+     begin
+      ListBoxProjects.Items.Add(ListProject.arProject[i].NameProject);
+      ComboBoxProject.Items.Add(ListProject.arProject[i].NameProject);
+     end;
+   ShowMessage('Проект изменен.');
   end;
 
 end;
 
 //DELETE Project
 procedure TMainForm.ButtonDeleteProjectClick(Sender: TObject);
+var
+ID, i :integer;
 begin
  if ListBoxProjects.ItemIndex < 0 then
   begin
@@ -340,8 +521,34 @@ begin
     exit;
   end;
 
- if MessageDlg('Вы действительно хотите удалить все данные связанные с проектом ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex],
-    mtConfirmation, mbYesNo, 0) = idYes then  ShowMessage('');
+ if MessageDlg('Вы действительно хотите удалить все данные связанные с проектом ' + ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] + '?',
+    mtConfirmation, mbYesNo, 0) = idYes then
+    begin
+    try
+     for I := 0 to Length(ListProject.arProject) - 1 do
+      begin
+       if ListProject.arProject[i].NameProject =
+        ListBoxProjects.Items.Strings[ListBoxProjects.ItemIndex] then
+        begin
+         ID := ListProject.arProject[i].IDProject;
+         ListProject.DeleteProject(ID);
+         ListSession.ActiveProjectID := ID;
+         ListSession.DeleteSession;
+         break;
+        end;
+      end;
+     finally
+      ListBoxProjects.Items.Clear;
+      ComboBoxProject.Items.Clear;
+      for I := 0 to Length(ListProject.arProject) - 1  do
+        begin
+         ListBoxProjects.Items.Add(ListProject.arProject[i].NameProject);
+         ComboBoxProject.Items.Add(ListProject.arProject[i].NameProject);
+        end;
+      StringGridSessions.RowCount := 1;
+      ShowMessage('Проект удален.');
+     end;
+    end;
 
 end;
 

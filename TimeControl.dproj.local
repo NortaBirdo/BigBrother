@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.513,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\SQLiteWrap.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.424,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainForm.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.171,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\SQLite3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.040,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\DateTimeTransformUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.708,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.086,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.937,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.021,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.111,=C:\Users\Николай\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.424,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainForm.dfm=C:\Users\Николай\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\EditProjectFormUnit.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.171,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\SQLite3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.210,C:\Users\Николай\Documents\RAD Studio\Projects\Project1.dproj=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\TimeControl.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.424,C:\Users\Николай\Documents\RAD Studio\Projects\Unit1.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainForm.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.513,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\SQLiteWrap.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.490,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainForm.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.800,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\DBUnit.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.040,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\DateTimeTransformUnit.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\EditProjectFormUnit.dfm=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.210,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\TimeControl.dproj=C:\Users\Николай\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
     <Transaction>1899.12.30 00:00:00.000.187,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainFormUnit.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.611,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainFormUnit.pas=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.021,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.937,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.086,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>2013.06.14 09:50:11.708,=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
-    <Transaction>2013.06.14 09:50:45.429,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MyUtilsUnit.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.424,C:\Users\Николай\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MainForm.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\EditProjectFormUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.800,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\DBUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.dfm=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\EditProjectFormUnit.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.429,C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\Unit1.pas=C:\Users\Николай\Documents\RAD Studio\Projects\Контроль времени\MyUtilsUnit.pas</Transaction>
   </Transactions>
 </BorlandProject>

@@ -80,6 +80,8 @@ type
     LabelCost: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure N2Click(Sender: TObject);
+    procedure OnMinimizeProc(Sender: TObject);
+    procedure WndProc (var Message: TMessage);
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonStartSessionClick(Sender: TObject);
     procedure TimerSessionTimer(Sender: TObject);
@@ -94,7 +96,10 @@ type
     procedure CheckBoxIsControlClick(Sender: TObject);
     procedure ListBoxProjectsClick(Sender: TObject);
     function CalcTime: integer;
+    procedure Ic(n: integer; Icon: TIcon);
 
+  protected
+    Procedure ControlWindow(Var Msg:TMessage); message WM_SYSCOMMAND;
   private
     { Private declarations }
   public
@@ -135,6 +140,7 @@ var
  i: integer;
  DB: TSQLiteDatabase;
 begin
+ Application.OnMinimize := OnMinimizeProc;
  PageControl1.TabIndex := 0;
  StringGridSessions.Cells[0,0] := 'Старт сессии';
  StringGridSessions.Cells[1,0] := 'Окончание сессии';
@@ -282,6 +288,69 @@ end;
 procedure TMainForm.N4Click(Sender: TObject);
 begin
  ShowMessage('Программа для отслеживания рабочего времени. Автор: Соколовский Николай. E-mail: sokolovskynik@gmail.com');
+end;
+
+//minimimalization window in tray
+procedure TMainForm.Ic(n: integer; Icon: TIcon);
+Var Nim:TNotifyIconData;
+begin
+ With Nim do
+  Begin
+   cbSize:=SizeOf(Nim);
+   Wnd:=TMainForm.Handle;
+   uID:=1;
+   uFlags:=NIF_ICON or NIF_MESSAGE or NIF_TIP;
+   hicon:=Icon.Handle;
+   uCallbackMessage:=wm_user+1;
+   szTip:='Большой брат';
+  End;
+ Case n OF
+  1: Shell_NotifyIcon(Nim_Add,@Nim);
+  2: Shell_NotifyIcon(Nim_Delete,@Nim);
+  3: Shell_NotifyIcon(Nim_Modify,@Nim);
+ End;
+end;
+
+
+procedure TMainForm.ControlWindow(var Msg: TMessage);
+begin
+ IF Msg.WParam=SC_MINIMIZE then
+  Begin
+   Ic(1,Application.Icon);  // Добавляем значок в трей
+   ShowWindow(Handle,SW_HIDE);  // Скрываем программу
+   ShowWindow(Application.Handle,SW_HIDE);  // Скрываем кнопку с TaskBar'а
+ End else inherited;
+end;
+
+
+procedure TMainForm.OnMinimizeProc(Sender: TObject);
+begin
+  PostMessage(Handle,WM_SYSCOMMAND,SC_MINIMIZE,0);
+end;
+
+
+//hooking system messages
+procedure TMainForm.WndProc(var Message: TMessage);
+begin
+{ if Message.LParam=WM_LBUTTONUP then
+  begin
+//    MainForm1.Show;
+    DeallocateHWnd (FHandle);
+    Shell_NotifyIcon(NIM_DELETE, @noIconData);// distroy tray icon
+    ShowWindow(Application.Handle,SW_SHOW);   //repair buttin of program
+   // ShowWindow(Handle,SW_SHOW);               //show window
+    ShowWindow(Handle,SW_SHOW);
+    Mainform1.PageControl1.Repaint;
+    //MainForm1.PageControl1.Repaint;
+    {Application.Restore;
+    Application.BringToFront;
+    Application.ProcessMessages;
+  end;
+  if Message.LParam = WM_RBUTTONUP then
+   begin
+     MainForm1.PopupMenu1.Popup(Screen.Width-32, Screen.Height-32);
+   end;
+            }
 end;
 
 procedure TMainForm.ButtonSaveClick(Sender: TObject);
